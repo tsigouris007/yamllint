@@ -1,0 +1,32 @@
+name: 'Yamllint GitHub Actions'
+on:
+  pull_request:
+    paths:
+      - '**.yml'
+      - '**.yaml'
+      - '**.yamllint'
+  workflow_dispatch:
+jobs:
+  yamllint:
+    name: 'Yaml Lint'
+    runs-on: [ self-hosted ]
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Set workflow environment
+        uses: tsigouris007/set-workflow-env@main
+        with:
+          changed_files_filter: '*\.yml$|*\.yaml$'
+      - name: Changed files
+        run: |
+          echo "Got changed YAML files: ${{ env.CHANGED_FILES }}"
+      - name: Yamllint
+        uses: karancode/yamllint-github-action@master
+        with:
+          yamllint_file_or_dir: ${{ env.CHANGED_FILES }}
+          yamllint_comment: true
+          yamllint_config_filepath: .config/conf.yamllint
+        env:
+          GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
